@@ -151,7 +151,7 @@ export class CompanyController {
   public delete = async (req: Request, res: Response) => {
     const id = req.params.id;
 
-    // Before delete, check if the company has child(s)
+    // Improvement- Before delete, check if the company has child(s)
     // If has, then reject, error 400
 
     try {

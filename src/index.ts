@@ -1,7 +1,7 @@
 import express, { Application } from "express";
 import "reflect-metadata";
 import { initDBWithData } from "./utils";
-import { CompanyController } from "./controllers";
+import { CompanyController, StationTypeController } from "./controllers";
 import cors from "cors";
 import helmet from "helmet";
 
@@ -29,9 +29,17 @@ class Server {
     if (process.env.NODE_ENV !== "test") {
       initDBWithData().then(() => {
         this.express.use(`/api/companies/`, new CompanyController().router);
+        this.express.use(
+          `/api/station-types/`,
+          new StationTypeController().router
+        );
       });
     } else {
       this.express.use(`/api/companies/`, new CompanyController().router);
+      this.express.use(
+        `/api/station-types/`,
+        new StationTypeController().router
+      );
     }
   }
 
