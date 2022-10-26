@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { DataSourceOptions, DataSource } from "typeorm";
-import { CompanyEntity } from "../entities";
+import { CompanyEntity, StationTypeEntity } from "../entities";
 
 const connectOptions: DataSourceOptions = {
   type: process.env.DB_TYPE as "postgres",
@@ -77,6 +77,13 @@ export const createChildCompany = async (parentCompany: CompanyEntity) => {
 export const clearCompanies = async () => {
   const bookingRepository = await DB.getRepository(CompanyEntity);
   await bookingRepository.query(`TRUNCATE "company" RESTART IDENTITY CASCADE;`);
+};
+
+export const clearStationTypes = async () => {
+  const bookingRepository = await DB.getRepository(StationTypeEntity);
+  await bookingRepository.query(
+    `TRUNCATE "stationType" RESTART IDENTITY CASCADE;`
+  );
 };
 
 export const dropDB = async () => {
