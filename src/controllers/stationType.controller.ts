@@ -6,17 +6,17 @@ import { StationTypeRepository } from "../repository";
 
 export class StationTypeController {
   public router: Router;
-  private StationTypeRepository: typeof StationTypeRepository;
+  private stationTypeRepository: typeof StationTypeRepository;
 
   constructor() {
-    this.StationTypeRepository = StationTypeRepository;
+    this.stationTypeRepository = StationTypeRepository;
     this.router = Router();
     this.routes();
   }
 
   public index = async (req: Request, res: Response) => {
     try {
-      const companies = await this.StationTypeRepository.find({
+      const companies = await this.stationTypeRepository.find({
         order: {
           id: "DESC",
         },
@@ -31,7 +31,7 @@ export class StationTypeController {
     const id = req["params"]["id"];
 
     try {
-      const stationType = await this.StationTypeRepository.findOneOrFail({
+      const stationType = await this.stationTypeRepository.findOneOrFail({
         where: {
           id: Number(id),
         },
@@ -59,7 +59,7 @@ export class StationTypeController {
     }
 
     try {
-      await this.StationTypeRepository.save(stationType);
+      await this.stationTypeRepository.save(stationType);
     } catch (e) {
       res.status(409).send("Station type already exist");
       return;
@@ -74,7 +74,7 @@ export class StationTypeController {
 
     let stationType;
     try {
-      stationType = await this.StationTypeRepository.findOneOrFail({
+      stationType = await this.stationTypeRepository.findOneOrFail({
         where: {
           id: Number(id),
         },
@@ -94,7 +94,7 @@ export class StationTypeController {
     }
 
     try {
-      await this.StationTypeRepository.save(stationType);
+      await this.stationTypeRepository.save(stationType);
     } catch (e) {
       res.status(400).send("Could not update station type");
       return;
@@ -109,7 +109,7 @@ export class StationTypeController {
     // If has, then reject, error 400
 
     try {
-      await this.StationTypeRepository.findOneOrFail({
+      await this.stationTypeRepository.findOneOrFail({
         where: {
           id: Number(id),
         },
@@ -118,7 +118,7 @@ export class StationTypeController {
       res.status(404).send("Station type not found");
       return;
     }
-    this.StationTypeRepository.delete(id);
+    this.stationTypeRepository.delete(id);
 
     res.status(204).send();
   };

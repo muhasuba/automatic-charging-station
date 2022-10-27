@@ -94,3 +94,5 @@ curl --location --request PUT 'http://localhost:3000/api/companies/1' \
 ```bash
 curl --location --request DELETE 'http://localhost:3000/api/companies/6'
 ```
+
+For more sample, use this template [sample requests on Postman](Sample_Requests.postman_collection.json)

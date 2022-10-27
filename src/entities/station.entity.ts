@@ -24,5 +24,5 @@ export class StationEntity {
   company: CompanyEntity;
 
   @ManyToOne(() => StationTypeEntity, (stationType) => stationType.stations)
-  stationType: CompanyEntity;
+  stationType: StationTypeEntity;
 }
