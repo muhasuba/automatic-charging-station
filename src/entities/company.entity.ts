@@ -31,6 +31,4 @@ export class CompanyEntity {
 
   @OneToMany(() => StationEntity, (station) => station.company)
   stations: StationEntity[];
-
-  // company will have multiple stations ManyToMany
 }

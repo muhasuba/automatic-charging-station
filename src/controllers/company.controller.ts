@@ -6,17 +6,17 @@ import { CompanyRepository } from "../repository";
 
 export class CompanyController {
   public router: Router;
-  private CompanyRepository: typeof CompanyRepository;
+  private companyRepository: typeof CompanyRepository;
 
   constructor() {
-    this.CompanyRepository = CompanyRepository;
+    this.companyRepository = CompanyRepository;
     this.router = Router();
     this.routes();
   }
 
   public index = async (req: Request, res: Response) => {
     try {
-      const companies = await this.CompanyRepository.find({
+      const companies = await this.companyRepository.find({
         order: {
           id: "DESC",
           childCompanies: {
@@ -38,7 +38,7 @@ export class CompanyController {
     const id = req["params"]["id"];
 
     try {
-      const company = await this.CompanyRepository.findOneOrFail({
+      const company = await this.companyRepository.findOneOrFail({
         where: {
           id: Number(id),
         },
@@ -66,7 +66,7 @@ export class CompanyController {
     let parentCompany;
     if (parentCompanyId) {
       try {
-        parentCompany = await this.CompanyRepository.findOneOrFail({
+        parentCompany = await this.companyRepository.findOneOrFail({
           where: {
             id: Number(parentCompanyId),
           },
@@ -87,7 +87,7 @@ export class CompanyController {
     }
 
     try {
-      await this.CompanyRepository.save(company);
+      await this.companyRepository.save(company);
     } catch (e) {
       res.status(409).send("Company already exist");
       return;
@@ -106,7 +106,7 @@ export class CompanyController {
     }
     let company;
     try {
-      company = await this.CompanyRepository.findOneOrFail({
+      company = await this.companyRepository.findOneOrFail({
         where: {
           id: Number(id),
         },
@@ -119,13 +119,13 @@ export class CompanyController {
     let parentCompany;
     if (parentCompanyId) {
       try {
-        parentCompany = await this.CompanyRepository.findOneOrFail({
+        parentCompany = await this.companyRepository.findOneOrFail({
           where: {
             id: Number(parentCompanyId),
           },
         });
       } catch (error) {
-        res.status(404).send("Parent company not found");
+        res.status(400).send("Provide valid id for parent company");
         return;
       }
     }
@@ -140,7 +140,7 @@ export class CompanyController {
     }
 
     try {
-      await this.CompanyRepository.save(company);
+      await this.companyRepository.save(company);
     } catch (e) {
       res.status(400).send("Could not update company");
       return;
@@ -155,7 +155,7 @@ export class CompanyController {
     // If has, then reject, error 400
 
     try {
-      await this.CompanyRepository.findOneOrFail({
+      await this.companyRepository.findOneOrFail({
         where: {
           id: Number(id),
         },
@@ -164,7 +164,7 @@ export class CompanyController {
       res.status(404).send("Company not found");
       return;
     }
-    this.CompanyRepository.delete(id);
+    this.companyRepository.delete(id);
 
     res.status(204).send();
   };

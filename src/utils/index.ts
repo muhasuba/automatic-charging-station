@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { DataSourceOptions, DataSource } from "typeorm";
-import { CompanyEntity, StationTypeEntity } from "../entities";
+import { CompanyEntity, StationEntity, StationTypeEntity } from "../entities";
 
 const connectOptions: DataSourceOptions = {
   type: process.env.DB_TYPE as "postgres",
@@ -30,16 +30,31 @@ export const initDBWithData = async () => {
   const db = await DB.initialize();
 
   await clearDB();
+  // await createInitialCompany();
+  // await createInitialStationType();
 
   return db;
 };
 
-export const initDBWithAdmin = async () => {
-  const db = await DB.initialize();
+export const createInitialCompany = async () => {
+  const company = new CompanyEntity();
 
-  await clearDB();
+  company.name = "Initial Company Test";
 
-  return db;
+  await DB.getRepository(CompanyEntity).save(company);
+
+  return company;
+};
+
+export const createInitialStationType = async () => {
+  const stationType = new StationTypeEntity();
+
+  stationType.name = "Initial Station Type Test";
+  stationType.maxPower = 1;
+
+  await DB.getRepository(StationTypeEntity).save(stationType);
+
+  return stationType;
 };
 
 export const clearDB = async () => {
@@ -52,36 +67,19 @@ export const clearDB = async () => {
   }
 };
 
-export const createParentCompany = async () => {
-  const company = new CompanyEntity();
-
-  company.name = "Parent Company Sample";
-  company.parentCompany = undefined;
-
-  await DB.getRepository(CompanyEntity).save(company);
-
-  return company;
-};
-
-export const createChildCompany = async (parentCompany: CompanyEntity) => {
-  const company = new CompanyEntity();
-
-  company.name = "Child Company Sample";
-  company.parentCompany = parentCompany;
-
-  await DB.getRepository(CompanyEntity).save(company);
-
-  return company;
-};
-
 export const clearCompanies = async () => {
-  const bookingRepository = await DB.getRepository(CompanyEntity);
-  await bookingRepository.query(`TRUNCATE "company" RESTART IDENTITY CASCADE;`);
+  const companyRepository = await DB.getRepository(CompanyEntity);
+  await companyRepository.query(`TRUNCATE "company" RESTART IDENTITY CASCADE;`);
+};
+
+export const clearStations = async () => {
+  const stationRepository = await DB.getRepository(StationEntity);
+  await stationRepository.query(`TRUNCATE "station" RESTART IDENTITY CASCADE;`);
 };
 
 export const clearStationTypes = async () => {
-  const bookingRepository = await DB.getRepository(StationTypeEntity);
-  await bookingRepository.query(
+  const stationTypeRepository = await DB.getRepository(StationTypeEntity);
+  await stationTypeRepository.query(
     `TRUNCATE "stationType" RESTART IDENTITY CASCADE;`
   );
 };

@@ -1,0 +1,360 @@
+{
+	"info": {
+		"_postman_id": "12a9973d-83b4-4e08-81fd-8999a0199b04",
+		"name": "Automatic Charging Simulation Requests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Company",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Sample Company\"\n}"
+				},
+				"url": {
+					"raw": "{{api-base-url}}/companies",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"companies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Child Company",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Sample Child Company\",\n    \"parentCompanyId\": 1\n}"
+				},
+				"url": {
+					"raw": "{{api-base-url}}/companies",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"companies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Station Type",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"ST 1\",\n\t\"maxPower\": 1\n}"
+				},
+				"url": {
+					"raw": "{{api-base-url}}/station-types",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"station-types"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Station",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Station Sample\",\n\t\"companyId\": 1,\n    \"stationTypeId\": 1\n}"
+				},
+				"url": {
+					"raw": "{{api-base-url}}/stations",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"stations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Companies",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api-base-url}}/companies",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"companies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Statiton Types",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api-base-url}}/station-types",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"station-types"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Statitons",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api-base-url}}/stations",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"stations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Single Company",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api-base-url}}/companies/1",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"companies",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Single Station Type",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api-base-url}}/companies/6",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"companies",
+						"6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Single Station",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api-base-url}}/stations/3",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"stations",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Company",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Child parent update3\",\n\t\"parentCompanyId\": \"\"\n}"
+				},
+				"url": {
+					"raw": "{{api-base-url}}/companies/3",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"companies",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Station Type",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"ST Update1\",\n\t\"maxPower\": 1\n}"
+				},
+				"url": {
+					"raw": "{{api-base-url}}/station-types/1",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"station-types",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Stations",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"ST Update1\",\n\t\"maxPower\": 1\n}"
+				},
+				"url": {
+					"raw": "{{api-base-url}}/station-types/1",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"station-types",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Company",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{api-base-url}}/companies/4",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"companies",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Station Type",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{api-base-url}}/station-types/2",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"station-types",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Stations",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{api-base-url}}/stations/3",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"stations",
+						"3"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
