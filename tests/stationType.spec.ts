@@ -1,16 +1,11 @@
-import {
-  initDBWithData,
-  clearDB,
-  clearStationTypes,
-  dropDB,
-} from "../src/utils";
+import { clearDB, clearStationTypes, dropDB, initDB } from "../src/utils";
 import app from "../src";
 import request from "supertest";
 
 describe("/api/station-types", () => {
   beforeAll(async () => {
     await clearDB();
-    await initDBWithData();
+    await initDB();
   });
 
   afterEach(async () => {

@@ -23,6 +23,8 @@ export const DB = new DataSource(connectOptions);
 export const initDB = async () => {
   const db = await DB.initialize();
 
+  await clearDB();
+
   return db;
 };
 
@@ -30,31 +32,102 @@ export const initDBWithData = async () => {
   const db = await DB.initialize();
 
   await clearDB();
-  // await createInitialCompany();
-  // await createInitialStationType();
+  await createDemoTestData();
 
   return db;
 };
 
-export const createInitialCompany = async () => {
+export const createDemoTestData = async () => {
+  await createCompany("Company 1");
+  await createCompany("Company 2", 1);
+  await createCompany("Company 3", 1);
+  await createStationType("Station Type 1", 10);
+  await createStation("Station 1", 3, 1);
+  await createStation("Station 2", 2, 1);
+  await createStation("Station 3", 2, 1);
+  await createStation("Station 4", 3, 1);
+  await createStation("Station 5", 1, 1);
+};
+
+export const createCompany = async (
+  name: string,
+  parentCompanyId?: number | null
+) => {
   const company = new CompanyEntity();
 
-  company.name = "Initial Company Test";
+  company.name = name;
+  let parentCompany;
+  if (parentCompanyId) {
+    try {
+      parentCompany = await DB.getRepository(CompanyEntity).findOneOrFail({
+        where: {
+          id: Number(parentCompanyId),
+        },
+      });
+    } catch (error) {
+      console.log(
+        `Failed create company with name ${name} and parentCompanyId ${parentCompanyId}. Invalid parentCompanyId`
+      );
+    }
+    company.parentCompany = parentCompany;
+  }
 
   await DB.getRepository(CompanyEntity).save(company);
 
   return company;
 };
 
-export const createInitialStationType = async () => {
+export const createStationType = async (name: string, maxPower: number) => {
   const stationType = new StationTypeEntity();
 
-  stationType.name = "Initial Station Type Test";
-  stationType.maxPower = 1;
+  stationType.name = name;
+  stationType.maxPower = maxPower;
 
   await DB.getRepository(StationTypeEntity).save(stationType);
+};
 
-  return stationType;
+export const createStation = async (
+  name: string,
+  companyId: number,
+  stationTypeId: number
+) => {
+  const station = new StationEntity();
+
+  station.name = name;
+
+  let company;
+  try {
+    company = await DB.getRepository(CompanyEntity).findOneOrFail({
+      where: {
+        id: Number(companyId),
+      },
+    });
+  } catch (error) {
+    console.log(
+      `Failed create station with name ${name} and companyId ${companyId}. Invalid companyId`
+    );
+    return;
+  }
+  station.company = company;
+
+  let stationType;
+  try {
+    stationType = await DB.getRepository(StationTypeEntity).findOneOrFail({
+      where: {
+        id: Number(stationTypeId),
+      },
+    });
+  } catch (error) {
+    console.log(
+      `Failed create station with name ${name} and stationTypeId ${stationTypeId}. Invalid stationTypeId`
+    );
+    return;
+  }
+  station.stationType = stationType;
+
+  await DB.getRepository(CompanyEntity).save(station);
+
+  return company;
 };
 
 export const clearDB = async () => {

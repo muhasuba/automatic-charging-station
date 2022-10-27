@@ -1,11 +1,11 @@
-import { initDBWithData, clearDB, clearCompanies, dropDB } from "../src/utils";
+import { clearDB, clearCompanies, dropDB, initDB } from "../src/utils";
 import app from "../src";
 import request from "supertest";
 
 describe("/api/companies", () => {
   beforeAll(async () => {
     await clearDB();
-    await initDBWithData();
+    await initDB();
   });
 
   afterEach(async () => {

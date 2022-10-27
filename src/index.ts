@@ -5,6 +5,7 @@ import {
   CompanyController,
   StationController,
   StationTypeController,
+  ScriptController,
 } from "./controllers";
 import cors from "cors";
 import helmet from "helmet";
@@ -38,6 +39,7 @@ class Server {
           `/api/station-types/`,
           new StationTypeController().router
         );
+        this.express.use(`/api/scripts/`, new ScriptController().router);
       });
     } else {
       this.express.use(`/api/companies/`, new CompanyController().router);
@@ -46,6 +48,7 @@ class Server {
         `/api/station-types/`,
         new StationTypeController().router
       );
+      this.express.use(`/api/scripts/`, new ScriptController().router);
     }
   }
 
