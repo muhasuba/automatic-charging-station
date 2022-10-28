@@ -88,7 +88,7 @@ export class CompanyController {
 
     try {
       await this.companyRepository.save(company);
-    } catch (e) {
+    } catch (error) {
       res.status(409).send("Company already exist");
       return;
     }
@@ -141,7 +141,7 @@ export class CompanyController {
 
     try {
       await this.companyRepository.save(company);
-    } catch (e) {
+    } catch (error) {
       res.status(400).send("Could not update company");
       return;
     }

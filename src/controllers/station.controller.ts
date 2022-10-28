@@ -113,7 +113,7 @@ export class StationController {
 
     try {
       await this.stationRepository.save(station);
-    } catch (e) {
+    } catch (error) {
       res.status(409).send("Station already exist");
       return;
     }
@@ -173,7 +173,7 @@ export class StationController {
 
     try {
       await this.stationRepository.save(station);
-    } catch (e) {
+    } catch (error) {
       res.status(400).send("Could not update company");
       return;
     }

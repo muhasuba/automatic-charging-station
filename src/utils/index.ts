@@ -84,6 +84,8 @@ export const createStationType = async (name: string, maxPower: number) => {
   stationType.maxPower = maxPower;
 
   await DB.getRepository(StationTypeEntity).save(stationType);
+
+  return stationType;
 };
 
 export const createStation = async (
@@ -125,9 +127,9 @@ export const createStation = async (
   }
   station.stationType = stationType;
 
-  await DB.getRepository(CompanyEntity).save(station);
+  await DB.getRepository(StationEntity).save(station);
 
-  return company;
+  return station;
 };
 
 export const clearDB = async () => {
@@ -161,4 +163,14 @@ export const dropDB = async () => {
   await DB.destroy();
 };
 
-export const jwtSecret = process.env.JWT_SECRET as string;
+export const getTimeNow = () => {
+  return new Date();
+};
+
+export const getTimeAfterDelay = (prevTime: Date, delayInSecond: number) => {
+  return new Date(prevTime.setSeconds(prevTime.getSeconds() + delayInSecond));
+};
+
+export const getUnixTimestamp = () => {
+  return Math.floor(Date.now() / 1000);
+};
