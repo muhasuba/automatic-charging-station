@@ -174,3 +174,7 @@ export const getTimeAfterDelay = (prevTime: Date, delayInSecond: number) => {
 export const getUnixTimestamp = () => {
   return Math.floor(Date.now() / 1000);
 };
+
+export const sumListOfNumber = (inputList: number[]) => {
+  return inputList.reduce((a: number, b: number) => a + b, 0);
+};

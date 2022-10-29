@@ -1,7 +1,20 @@
 import { Router, Response, Request } from "express";
 import { commonConstants } from "../constants";
-import { CompanyEntity, StationEntity } from "../entities";
+import { CompanyEntity, StationEntity, StationTypeEntity } from "../entities";
 import { DB, getUnixTimestamp } from "../utils";
+
+interface CompanyHashObject {
+  chargingStations: number[];
+  chargingPower: number;
+}
+
+interface CompaniesHashObject {
+  [key: string]: CompanyHashObject;
+}
+
+interface StationsHashObject {
+  [key: string]: number;
+}
 
 interface CompanyObject {
   id: number;
@@ -17,15 +30,135 @@ interface DataObject {
   totalChargingPower: number;
 }
 
-const processStartStation = async (
+const convertCompaniesHash = (companiesHash: CompaniesHashObject) => {
+  console.log("companiesHash", JSON.stringify(companiesHash));
+  const companies = [];
+  const companiesValue = JSON.parse(JSON.stringify(companiesHash));
+
+  for (const key of Object.keys(companiesValue)) {
+    console.log(key, companiesValue[key]);
+    const tempCompany = {
+      id: Number(key),
+      chargingStations: companiesValue[key].chargingStations,
+      chargingPower: companiesValue[key].chargingPower,
+    };
+    companies.push(tempCompany);
+  }
+  return companies;
+};
+
+const convertStationsHash = (stationsHash: StationsHashObject) => {
+  console.log("companiesHash", JSON.stringify(convertStationsHash));
+  const stationsValue = JSON.parse(JSON.stringify(stationsHash));
+  const totalChargingStations: number[] = [];
+  let totalChargingPower = 0;
+
+  for (const key of Object.keys(stationsValue)) {
+    totalChargingStations.push(Number(key));
+    totalChargingPower += Number(stationsValue[key]);
+  }
+  return {
+    totalChargingStations,
+    totalChargingPower,
+  };
+};
+
+const processStartCompaniesHashHelper = (
+  companiesHash: { [key: string]: CompanyHashObject },
+  companyId: number,
+  stationId: number,
+  maxPower: number
+) => {
+  if (
+    companyId in companiesHash &&
+    !(stationId in companiesHash[companyId]["chargingStations"])
+  ) {
+    companiesHash[companyId]["chargingStations"].push(stationId);
+    companiesHash[companyId]["chargingPower"] += maxPower;
+  } else {
+    const tempCompanyHasData = {
+      chargingStations: [stationId],
+      chargingPower: maxPower,
+    };
+    companiesHash[companyId] = tempCompanyHasData;
+  }
+};
+
+const processStartCompaniesHash = (
+  companiesHash: CompaniesHashObject,
+  station: StationEntity,
+  stationType: StationTypeEntity,
+  company: CompanyEntity
+) => {
+  processStartCompaniesHashHelper(
+    companiesHash,
+    company.id,
+    station.id,
+    stationType.maxPower
+  );
+  if (company.parentCompany) {
+    processStartCompaniesHashHelper(
+      companiesHash,
+      company.parentCompany.id,
+      station.id,
+      stationType.maxPower
+    );
+  }
+};
+
+const procesStationsHash = (
+  stationsHash: StationsHashObject,
+  stationId: number,
+  maxPower: number
+) => {
+  stationsHash[stationId] = maxPower;
+};
+
+const processStartStopStationHelper = async (
+  station: StationEntity,
+  companiesHash: CompaniesHashObject,
+  stationsHash: StationsHashObject
+) => {
+  const company = await DB.getRepository(CompanyEntity).findOneOrFail({
+    where: {
+      id: Number(station.company.id),
+    },
+    relations: {
+      parentCompany: true,
+    },
+  });
+  processStartCompaniesHash(
+    companiesHash,
+    station,
+    station.stationType,
+    company
+  );
+  procesStationsHash(stationsHash, station.id, station.stationType.maxPower);
+};
+
+const processStartStopStation = async (
   stationInfo: string,
-  companies: CompanyObject[],
-  totalChargingStations: number[],
-  totalChargingPower: number,
-  companiesHash: Object
+  companiesHash: CompaniesHashObject,
+  stationsHash: StationsHashObject,
+  command: "start" | "stop"
 ) => {
   if (stationInfo === "all") {
-    const stations = []; //get all stations
+    const stations = await DB.getRepository(StationEntity).find({
+      relations: {
+        company: true,
+        stationType: true,
+      },
+    });
+    console.log("stations", JSON.stringify(stations));
+    for (const station of stations) {
+      if (command === "start") {
+        await processStartStopStationHelper(
+          station,
+          companiesHash,
+          stationsHash
+        );
+      }
+    }
   } else {
     const stationId = Number(stationInfo);
     const station = await DB.getRepository(StationEntity).findOneOrFail({
@@ -38,15 +171,9 @@ const processStartStation = async (
       },
     });
     console.log(`station ${JSON.stringify(station)}`);
-    const company = await DB.getRepository(CompanyEntity).findOneOrFail({
-      where: {
-        id: Number(station.company.id),
-      },
-      relations: {
-        parentCompany: true,
-      },
-    });
-    console.log(`company ${JSON.stringify(company)}`);
+    if (command === "start") {
+      await processStartStopStationHelper(station, companiesHash, stationsHash);
+    }
   }
 };
 
@@ -79,18 +206,16 @@ export class ScriptController {
       }
 
       const data: DataObject[] = [];
-      const companies: CompanyObject[] = [];
-      const totalChargingStations: number[] = [];
-      const totalChargingPower = 0;
-      const companiesHash = {};
+      const companiesHash: CompaniesHashObject = {};
+      const stationsHash: StationsHashObject = {};
 
       let unixTimestamp = getUnixTimestamp();
       const beginTemplateData: DataObject = {
         step: "Begin",
         timestamp: unixTimestamp,
-        companies,
-        totalChargingStations,
-        totalChargingPower,
+        companies: [],
+        totalChargingStations: [],
+        totalChargingPower: 0,
       };
 
       for (const command of listCommands) {
@@ -103,18 +228,21 @@ export class ScriptController {
           continue;
         } else if (splitCommand[0] === "start") {
           const stationInfo = splitCommand[2];
-          await processStartStation(
+          await processStartStopStation(
             stationInfo,
+            companiesHash,
+            stationsHash,
+            "start"
+          );
+          const { totalChargingStations, totalChargingPower } =
+            convertStationsHash(stationsHash);
+          const companies = convertCompaniesHash(companiesHash);
+          tempData = {
+            step: `Start station ${stationInfo}`,
+            timestamp: unixTimestamp,
             companies,
             totalChargingStations,
             totalChargingPower,
-            companiesHash
-          );
-          tempData = {
-            ...beginTemplateData,
-            timestamp: unixTimestamp,
-            companies,
-            step: `Start station ${stationInfo}`,
           };
         } else if (splitCommand[0] === "stop") {
           tempData = {
