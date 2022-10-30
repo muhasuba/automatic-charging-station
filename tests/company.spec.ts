@@ -1,20 +1,20 @@
-import { clearDB, clearCompanies, dropDB, initDB } from "../src/utils";
+import * as utils from "../src/utils";
 import app from "../src";
 import request from "supertest";
 
 describe("/api/companies", () => {
   beforeAll(async () => {
-    await clearDB();
-    await initDB();
+    await utils.clearDB();
+    await utils.initDB();
   });
 
   afterEach(async () => {
-    await clearCompanies();
+    await utils.clearCompanies();
   });
 
   afterAll(async () => {
-    await clearDB();
-    await dropDB();
+    await utils.clearDB();
+    await utils.dropDB();
   });
 
   it("should return an empty list on initial GET /api/companies", async () => {

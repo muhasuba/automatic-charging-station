@@ -1,20 +1,20 @@
-import { clearDB, clearStationTypes, dropDB, initDB } from "../src/utils";
+import * as utils from "../src/utils";
 import app from "../src";
 import request from "supertest";
 
 describe("/api/station-types", () => {
   beforeAll(async () => {
-    await clearDB();
-    await initDB();
+    await utils.clearDB();
+    await utils.initDB();
   });
 
   afterEach(async () => {
-    await clearStationTypes();
+    await utils.clearStationTypes();
   });
 
   afterAll(async () => {
-    await clearDB();
-    await dropDB();
+    await utils.clearDB();
+    await utils.dropDB();
   });
 
   it("should return an empty list on initial GET /api/station-types", async () => {

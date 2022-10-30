@@ -26,7 +26,6 @@ DB_USERNAME=postgres
 DB_PASSWORD=postgres
 DB_INSTANCE=postgres
 DB_SYNCHRONIZE=true
-JWT_SECRET=secret
 ```
 
 # Run docker compose for Postgres DB
@@ -60,39 +59,4 @@ npm run build
 
 # Sample Requests
 
-## Create company (cURL)
-```bash
-curl --location --request POST 'http://localhost:3000/api/companies' \
---header 'Content-Type: application/json' \
---data-raw '{
-	"name": "Sample Parent",
-	"parentCompanyId": ""
-}'
-```
-
-## Get all companies (cURL)
-```bash
-curl --location --request GET 'http://localhost:3000/api/companies'
-```
-
-## Get single company
-```bash
-curl --location --request GET 'http://localhost:3000/api/companies/1'
-```
-
-## Update company
-```bash
-curl --location --request PUT 'http://localhost:3000/api/companies/1' \
---header 'Content-Type: application/json' \
---data-raw '{
-	"name": "Update Sample Company",
-	"parentCompanyId": ""
-}'
-```
-
-## Delete company
-```bash
-curl --location --request DELETE 'http://localhost:3000/api/companies/6'
-```
-
-For more sample, use this template [sample requests on Postman](Sample_Requests.postman_collection.json)
+Use this template [sample requests on Postman](Sample_Requests.postman_collection.json) for sample API requests.

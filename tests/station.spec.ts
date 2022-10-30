@@ -1,21 +1,21 @@
-import { initDBWithData, clearDB, clearStations, dropDB } from "../src/utils";
+import * as utils from "../src/utils";
 import app from "../src";
 import request from "supertest";
 
 describe("/api/stations", () => {
   beforeAll(async () => {
-    await clearDB();
-    await initDBWithData();
-    await clearStations();
+    await utils.clearDB();
+    await utils.initDBWithData();
+    await utils.clearStations();
   });
 
   afterEach(async () => {
-    await clearStations();
+    await utils.clearStations();
   });
 
   afterAll(async () => {
-    await clearDB();
-    await dropDB();
+    await utils.clearDB();
+    await utils.dropDB();
   });
 
   it("should return initial list of stations GET /api/stations", async () => {

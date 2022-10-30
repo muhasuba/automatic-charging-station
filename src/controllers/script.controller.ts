@@ -232,11 +232,12 @@ export class ScriptController {
     try {
       const listCommands = script.toLowerCase().split(separator);
 
+      // Next improvement- Add more validation input script
       if (
         listCommands[0] != "begin" ||
         listCommands[listCommands.length - 1] != "end"
       ) {
-        res.status(400).send("Invalid script");
+        res.status(400).send("Invalid input script");
         return;
       }
 

@@ -105,7 +105,7 @@ export class StationTypeController {
   public delete = async (req: Request, res: Response) => {
     const id = req.params.id;
 
-    // Improvement- Before delete, check if the station type has used by station
+    // Next improvement- Before delete, check if the station type has used by station
     // If has, then reject, error 400
 
     try {
