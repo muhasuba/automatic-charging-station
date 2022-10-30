@@ -60,7 +60,7 @@ export class StationTypeController {
 
     try {
       await this.stationTypeRepository.save(stationType);
-    } catch (e) {
+    } catch (error) {
       res.status(409).send("Station type already exist");
       return;
     }
@@ -95,7 +95,7 @@ export class StationTypeController {
 
     try {
       await this.stationTypeRepository.save(stationType);
-    } catch (e) {
+    } catch (error) {
       res.status(400).send("Could not update station type");
       return;
     }
@@ -105,7 +105,7 @@ export class StationTypeController {
   public delete = async (req: Request, res: Response) => {
     const id = req.params.id;
 
-    // Improvement- Before delete, check if the station type has used by station
+    // Next improvement- Before delete, check if the station type has used by station
     // If has, then reject, error 400
 
     try {

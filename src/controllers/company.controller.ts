@@ -88,7 +88,7 @@ export class CompanyController {
 
     try {
       await this.companyRepository.save(company);
-    } catch (e) {
+    } catch (error) {
       res.status(409).send("Company already exist");
       return;
     }
@@ -141,7 +141,7 @@ export class CompanyController {
 
     try {
       await this.companyRepository.save(company);
-    } catch (e) {
+    } catch (error) {
       res.status(400).send("Could not update company");
       return;
     }
@@ -151,7 +151,7 @@ export class CompanyController {
   public delete = async (req: Request, res: Response) => {
     const id = req.params.id;
 
-    // Improvement- Before delete, check if the company has child(s)
+    // Next improvement- Before delete, check if the company has child(s)
     // If has, then reject, error 400
 
     try {

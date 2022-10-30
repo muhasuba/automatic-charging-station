@@ -114,6 +114,62 @@
 			"response": []
 		},
 		{
+			"name": "Script Parser",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"separator\": \"\\n\",\n\t\"script\": \"Begin\\nStart station 1\\nWait 5\\nStart station 2\\nWait 10\\nStart station all\\nWait 10\\nStop station 2\\nWait 10\\nStop station 3\\nWait 5\\nStop station all\\nEnd\"\n}\n\n"
+				},
+				"url": {
+					"raw": "{{api-base-url}}/scripts/parser",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"scripts",
+						"parser"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Script Parser 2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"separator\": \"\\n\",\n\t\"script\": \"Begin\\nStart station 1\\nEnd\"\n}\n\n"
+				},
+				"url": {
+					"raw": "{{api-base-url}}/scripts/parser",
+					"host": [
+						"{{api-base-url}}"
+					],
+					"path": [
+						"scripts",
+						"parser"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get All Companies",
 			"request": {
 				"method": "GET",
@@ -148,7 +204,7 @@
 			"response": []
 		},
 		{
-			"name": "Get All Statitons",
+			"name": "Get All Stations",
 			"request": {
 				"method": "GET",
 				"header": [],

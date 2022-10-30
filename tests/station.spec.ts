@@ -1,36 +1,30 @@
-import {
-  initDBWithData,
-  createInitialCompany,
-  createInitialStationType,
-  clearDB,
-  clearStations,
-  dropDB,
-} from "../src/utils";
+import * as utils from "../src/utils";
 import app from "../src";
 import request from "supertest";
 
 describe("/api/stations", () => {
   beforeAll(async () => {
-    await clearDB();
-    await initDBWithData();
-    await createInitialCompany();
-    await createInitialStationType();
+    await utils.clearDB();
+    await utils.initDBWithData();
+    await utils.clearStations();
   });
 
   afterEach(async () => {
-    await clearStations();
+    await utils.clearStations();
   });
 
   afterAll(async () => {
-    await clearDB();
-    await dropDB();
+    await utils.clearDB();
+    await utils.dropDB();
   });
 
-  it("should return an empty list on initial GET /api/stations", async () => {
-    const { status, body } = await request(app).get("/api/stations").send();
+  it("should return initial list of stations GET /api/stations", async () => {
+    const { status: getStatus, body: getBody } = await request(app)
+      .get("/api/stations/")
+      .send();
 
-    expect(status).toBe(200);
-    expect(body).toEqual([]);
+    expect(getStatus).toBe(200);
+    expect(getBody.length).toEqual(0);
   });
 
   it("should return list with 1 user on POST /api/stations", async () => {
@@ -54,10 +48,10 @@ describe("/api/stations", () => {
     expect(getBody[0]).toMatchObject({
       name: "Sample Station",
       company: {
-        name: "Initial Company Test",
+        name: "Company 1",
       },
       stationType: {
-        name: "Initial Station Type Test",
+        name: "Station Type 1",
       },
     });
   });
@@ -82,10 +76,10 @@ describe("/api/stations", () => {
     expect(getBody).toMatchObject({
       name: "Sample Station",
       company: {
-        name: "Initial Company Test",
+        name: "Company 1",
       },
       stationType: {
-        name: "Initial Station Type Test",
+        name: "Station Type 1",
       },
     });
 
@@ -146,6 +140,12 @@ describe("/api/stations", () => {
       .send();
 
     expect(deleteStatus).toBe(204);
+
+    const { status: deleteStatusFailed } = await request(app)
+      .delete("/api/stations/2")
+      .send();
+
+    expect(deleteStatusFailed).toBe(404);
 
     const { status: getStatusUpdated, body: getBodyUpdated } = await request(
       app
