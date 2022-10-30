@@ -175,6 +175,8 @@ export const getUnixTimestamp = () => {
   return Math.floor(Date.now() / 1000);
 };
 
-export const sumListOfNumber = (inputList: number[]) => {
-  return inputList.reduce((a: number, b: number) => a + b, 0);
+export const emptyObject = (inputObject: Record<string, unknown>) => {
+  Object.getOwnPropertyNames(inputObject).forEach(function (prop) {
+    delete inputObject[prop];
+  });
 };

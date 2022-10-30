@@ -1,7 +1,7 @@
 import { Router, Response, Request } from "express";
 import { commonConstants } from "../constants";
-import { CompanyEntity, StationEntity, StationTypeEntity } from "../entities";
-import { DB, getUnixTimestamp } from "../utils";
+import { CompanyEntity, StationEntity } from "../entities";
+import { DB, getUnixTimestamp, emptyObject } from "../utils";
 
 interface CompanyHashObject {
   chargingStations: number[];
@@ -31,12 +31,10 @@ interface DataObject {
 }
 
 const convertCompaniesHash = (companiesHash: CompaniesHashObject) => {
-  console.log("companiesHash", JSON.stringify(companiesHash));
   const companies = [];
   const companiesValue = JSON.parse(JSON.stringify(companiesHash));
 
   for (const key of Object.keys(companiesValue)) {
-    console.log(key, companiesValue[key]);
     const tempCompany = {
       id: Number(key),
       chargingStations: companiesValue[key].chargingStations,
@@ -48,7 +46,6 @@ const convertCompaniesHash = (companiesHash: CompaniesHashObject) => {
 };
 
 const convertStationsHash = (stationsHash: StationsHashObject) => {
-  console.log("companiesHash", JSON.stringify(convertStationsHash));
   const stationsValue = JSON.parse(JSON.stringify(stationsHash));
   const totalChargingStations: number[] = [];
   let totalChargingPower = 0;
@@ -71,7 +68,7 @@ const processStartCompaniesHashHelper = (
 ) => {
   if (
     companyId in companiesHash &&
-    !(stationId in companiesHash[companyId]["chargingStations"])
+    !companiesHash[companyId]["chargingStations"].includes(stationId)
   ) {
     companiesHash[companyId]["chargingStations"].push(stationId);
     companiesHash[companyId]["chargingPower"] += maxPower;
@@ -84,29 +81,24 @@ const processStartCompaniesHashHelper = (
   }
 };
 
-const processStartCompaniesHash = (
-  companiesHash: CompaniesHashObject,
-  station: StationEntity,
-  stationType: StationTypeEntity,
-  company: CompanyEntity
+const processStopCompaniesHashHelper = (
+  companiesHash: { [key: string]: CompanyHashObject },
+  companyId: number,
+  stationId: number,
+  maxPower: number
 ) => {
-  processStartCompaniesHashHelper(
-    companiesHash,
-    company.id,
-    station.id,
-    stationType.maxPower
-  );
-  if (company.parentCompany) {
-    processStartCompaniesHashHelper(
-      companiesHash,
-      company.parentCompany.id,
-      station.id,
-      stationType.maxPower
-    );
+  if (
+    companyId in companiesHash &&
+    stationId in companiesHash[companyId]["chargingStations"]
+  ) {
+    companiesHash[companyId]["chargingStations"] = companiesHash[companyId][
+      "chargingStations"
+    ].filter((item) => item !== stationId);
+    companiesHash[companyId]["chargingPower"] -= maxPower;
   }
 };
 
-const procesStationsHash = (
+const procesStartStationsHash = (
   stationsHash: StationsHashObject,
   stationId: number,
   maxPower: number
@@ -114,10 +106,18 @@ const procesStationsHash = (
   stationsHash[stationId] = maxPower;
 };
 
+const procesStopStationsHash = (
+  stationsHash: StationsHashObject,
+  stationId: number
+) => {
+  delete stationsHash[stationId];
+};
+
 const processStartStopStationHelper = async (
   station: StationEntity,
   companiesHash: CompaniesHashObject,
-  stationsHash: StationsHashObject
+  stationsHash: StationsHashObject,
+  command: "start" | "stop"
 ) => {
   const company = await DB.getRepository(CompanyEntity).findOneOrFail({
     where: {
@@ -127,13 +127,43 @@ const processStartStopStationHelper = async (
       parentCompany: true,
     },
   });
-  processStartCompaniesHash(
-    companiesHash,
-    station,
-    station.stationType,
-    company
-  );
-  procesStationsHash(stationsHash, station.id, station.stationType.maxPower);
+  if (command === "start") {
+    processStartCompaniesHashHelper(
+      companiesHash,
+      company.id,
+      station.id,
+      station.stationType.maxPower
+    );
+    if (company.parentCompany) {
+      processStartCompaniesHashHelper(
+        companiesHash,
+        company.parentCompany.id,
+        station.id,
+        station.stationType.maxPower
+      );
+    }
+    procesStartStationsHash(
+      stationsHash,
+      station.id,
+      station.stationType.maxPower
+    );
+  } else {
+    processStopCompaniesHashHelper(
+      companiesHash,
+      company.id,
+      station.id,
+      station.stationType.maxPower
+    );
+    if (company.parentCompany) {
+      processStopCompaniesHashHelper(
+        companiesHash,
+        company.parentCompany.id,
+        station.id,
+        station.stationType.maxPower
+      );
+    }
+    procesStopStationsHash(stationsHash, station.id);
+  }
 };
 
 const processStartStopStation = async (
@@ -143,21 +173,24 @@ const processStartStopStation = async (
   command: "start" | "stop"
 ) => {
   if (stationInfo === "all") {
-    const stations = await DB.getRepository(StationEntity).find({
-      relations: {
-        company: true,
-        stationType: true,
-      },
-    });
-    console.log("stations", JSON.stringify(stations));
-    for (const station of stations) {
-      if (command === "start") {
+    if (command === "start") {
+      const stations = await DB.getRepository(StationEntity).find({
+        relations: {
+          company: true,
+          stationType: true,
+        },
+      });
+      for (const station of stations) {
         await processStartStopStationHelper(
           station,
           companiesHash,
-          stationsHash
+          stationsHash,
+          command
         );
       }
+    } else {
+      emptyObject(companiesHash);
+      emptyObject(stationsHash);
     }
   } else {
     const stationId = Number(stationInfo);
@@ -170,10 +203,12 @@ const processStartStopStation = async (
         stationType: true,
       },
     });
-    console.log(`station ${JSON.stringify(station)}`);
-    if (command === "start") {
-      await processStartStopStationHelper(station, companiesHash, stationsHash);
-    }
+    await processStartStopStationHelper(
+      station,
+      companiesHash,
+      stationsHash,
+      command
+    );
   }
 };
 
@@ -245,10 +280,22 @@ export class ScriptController {
             totalChargingPower,
           };
         } else if (splitCommand[0] === "stop") {
+          const stationInfo = splitCommand[2];
+          await processStartStopStation(
+            stationInfo,
+            companiesHash,
+            stationsHash,
+            "stop"
+          );
+          const { totalChargingStations, totalChargingPower } =
+            convertStationsHash(stationsHash);
+          const companies = convertCompaniesHash(companiesHash);
           tempData = {
-            ...beginTemplateData,
+            step: `Stop station ${stationInfo}`,
             timestamp: unixTimestamp,
-            step: `Stop ${splitCommand[1]} ${splitCommand[2]}`,
+            companies,
+            totalChargingStations,
+            totalChargingPower,
           };
         } else if (command === "end") {
           tempData = {
