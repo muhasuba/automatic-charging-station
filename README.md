@@ -18,7 +18,7 @@ npm install
 
 # Prepare Environment
 
-## Rename .env.example to env
+## Rename .env.example to .env
 Change `NODE_ENV` to `prod` if you want to test building prod version locally.
 
 ```yaml
